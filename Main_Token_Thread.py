@@ -27,7 +27,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def homepage():
-    text = '<a href="%s">Authenticate with reddit</a>'
+    text = '<a href="%s">Lets make a new Token for Destiny 2</a>'
 
     # test
     error = request.args.get('error', '')
@@ -72,7 +72,7 @@ def homepage():
             raise RuntimeError('Not running with the Werkzeug Server')
         func()
 
-        
+
         headers = {
             'X-API-Key': api_key,
             'Authorization': 'Bearer ' + access_token}
@@ -164,9 +164,17 @@ def open_token():
     x = 3
     print(data)
     return response2
+def main():
+    t1 = Thread(target=runApp).start()
+
+    url = 'http://127.0.0.1:65011/'
+    webbrowser.open(url, new=1)
+
+    t2 = Thread(target=runMainWorker).start()
+
 
 if __name__ == '__main__':
-
+    main()
 
     """
     try:
@@ -181,12 +189,12 @@ if __name__ == '__main__':
         print('We need to recreate or refresh New Token')
     """
 
-    t1 = Thread(target=runApp).start()
+    #t1 = Thread(target=runApp).start()
 
-    url='http://127.0.0.1:65011/'
-    webbrowser.open(url, new=1)
+    #url='http://127.0.0.1:65011/'
+    #webbrowser.open(url, new=1)
 
-    t2 = Thread(target=runMainWorker).start()
+    #t2 = Thread(target=runMainWorker).start()
 
 
 

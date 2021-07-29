@@ -564,7 +564,7 @@ def main():
     stat_summary = destiny2_api_public(stat_url, my_api_key)
     stat_summary_data = stat_summary.data['displayProperties']
     stat_name = stat_summary_data['name']
-    stat_description = stat_summary_data['description']
+    stat_descript.0/33333333333333333ry_data['description']
 
     print("The first stat is {0} and its value is {1}".format(stat_name, stat_value))
 

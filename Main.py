@@ -105,8 +105,12 @@ try:
         'X-API-Key': api_key,
         'Authorization': 'Bearer ' + access_token}
 
+
     url2 = "https://www.bungie.net/Platform/User/GetCurrentBungieNetUser/"
+
     response2 = requests.request("GET", url2, headers=headers)
+
+
 
     x=4
     print(response2.content)
@@ -147,16 +151,26 @@ for item in char_items:
 components = '201'
 
 membership_type='1'
-baseurl = 'https://bungie.net/Platform/Destiny2/'
+baseurl = 'https://www.bungie.net/Platform/Destiny2/'
 
 
-profile_url=baseurl + membership_type + '/' + 'Profile/' + user_id +'/Character/'+ char_id+ '/?components=' + components
+char_url=baseurl + membership_type + '/' + 'Profile/' + user_id +'/Character/'+ char_id+ '/?components=' + components
+#char_url=baseurl + membership_type + '/' + 'Profile/' + user_id +'/Character/'+ char_id+ '/'
+#char_url=baseurl + membership_type + '/' + 'Profile/' + user_id +'/Character/'+ char_id+ '/?components=CharacterInventories'
+
 #my_headers = {"X-API-Key": api_key}
+
+
 my_headers = {
     'X-API-Key': api_key,
     'Authorization': 'Bearer ' + access_token}
 
-profile_response = requests.get(profile_url, headers = my_headers)
+response2 = requests.request("GET", char_url, headers=my_headers)
+
+character_summary = requests.get(char_url, headers = my_headers)
+character_summary=character_summary.json()
+character_items = character_summary['Response']['equipment']['data']['items']  #
+first_item = character_items[0]
 
 x=4
 

@@ -115,7 +115,8 @@ def make_authorization_url():
     #save_created_state(state)
     params = {"client_id": CLIENT_ID,
               "response_type": "code",
-              "redirect_uri": REDIRECT_URI}
+              "reauth": 'true'}
+              #"redirect_uri": REDIRECT_URI}
     # "state": state,
     # "redirect_uri": REDIRECT_URI,
     # "duration": "temporary",

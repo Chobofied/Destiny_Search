@@ -72,10 +72,22 @@ def destiny2_api_public(url, api_key):
     """This is the main function for everything. It requests the info from the bungie servers
     by sending a url."""
 
+    ##TJS ADDED
+    file = open("token.txt")
+    data = file.readlines()
+    file.close()
+    print("Made a New Tokens")
+    access_token = data[0].strip('\n')
+    refresh_token = data[1].strip('\n')
 
     #token='COevAxKGAgAgK1s9r8W8BCbqWiFI7ImwDcBgb02ba6o4IzfVaaXHGGngAAAAeFFhxRKAV8i6JY1aniOilJwKoV0AVKgGU8tEp8l+3K0g2ODp1yNQoLKPjo35c/+spyRkEUoPUH6jkYUuC498+GskvHVQqVOwkey76e92FvtV9aBCbdY+9Fhn6OcxvKVE8DAbWrN0JQtSLFaY144cGxh1kGMW35Ed7/5fglZuhsi9y/ttzKHlyqXjr8CC6hiG1SPUrnjhQLaVcGs2JD5Sw1E/4o7pgIrDdWCibENeKPJp1RN9UyoXyep2fxazjOK8u62wsn2AneMDFUP7V0kIKsr6ObQr6JkQoSP2Pk0/fic='
     #my_headers = my_headers = {"X-API-Key": my_api_key, "Authorization":token}
     my_headers = {"X-API-Key": my_api_key}
+
+    my_headers = {
+        'X-API-Key': api_key,
+        'Authorization': 'Bearer ' + access_token}
+
     response = requests.get(url, headers = my_headers)
 
     #url2 = 'https://www.bungie.net/Platform/User/GetCurrentBungieNetUser/'
@@ -517,7 +529,13 @@ def main():
     # This basically is GetProfile but for just one character that you show an id for
     # Note if you search for inventory components (201) if you get nothing it might say privacy: 2
     # public:1, private: 2
+
+    #character_components = '201,205'
     character_components = '201,205'
+
+
+
+
     char_url = get_character_url(user_name, user_platform, character_ids[0], character_components, my_api_key)
     character_summary = destiny2_api_public(char_url, my_api_key)
 

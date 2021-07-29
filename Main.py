@@ -3,6 +3,24 @@ import json
 import Main_Token_Thread
 import Destiny_test
 
+def identify_item(item,api_key):
+    item_instance_id = item['itemInstanceId']
+    item_hash = str(item['itemHash'])
+
+    baseurl = 'https://bungie.net/Platform/Destiny2/'
+    #entity_type = 'DestinyStatDefinition'
+    entity_type ='DestinyInventoryItemDefinition'
+
+    item_url=baseurl + 'Manifest/' + entity_type + '/' + item_hash
+    #item_url = get_entity_definition_url(item_hash, 'DestinyInventoryItemDefinition', my_api_key)
+    my_headers = {"X-API-Key": api_key}
+    response = requests.get(item_url, headers=my_headers)
+    return response.json()
+
+
+
+    #item_summary = destiny2_api_public(item_url, my_api_key)
+
 
 CLIENT_ID = "37141"
 api_key='afb7b0fcc0604ab49612af8de1b758f2'
@@ -104,7 +122,41 @@ else:
     print('We need to recreate or refresh New Token')
 
 
-Item=Destiny_test.main()
+
+# Create a list of active Destiny 2 items for character
+char_id,user_id,char_items,Item=Destiny_test.main()
+
+item_data=[]
+for item in char_items:
+    #identify_item(char_items[0], api_key)
+    item_data.append(identify_item(item,api_key))
+
+
+
+
+#Trying to get vault Data Here!! May need to change to get to Char vs Get Profile
+# %%GetProfile
+# Component types include: 100 profiles; 200 characters; 201 non-equipped items (need oauth);
+# 205: CharacterEquipment: what they currently have equipped. All can see this
+#See https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
+#Need to make this 201 to see vault items
+
+
+
+#components = '200,205'
+components = '201'
+
+membership_type='1'
+baseurl = 'https://bungie.net/Platform/Destiny2/'
+
+
+profile_url=baseurl + membership_type + '/' + 'Profile/' + user_id +'/Character/'+ char_id+ '/?components=' + components
+#my_headers = {"X-API-Key": api_key}
+my_headers = {
+    'X-API-Key': api_key,
+    'Authorization': 'Bearer ' + access_token}
+
+profile_response = requests.get(profile_url, headers = my_headers)
 
 x=4
 

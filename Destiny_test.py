@@ -40,7 +40,7 @@ import json
 #%% fixed parameters
 client_ID='37141'
 my_api_key = 'afb7b0fcc0604ab49612af8de1b758f2' #put your api key here!
-baseurl = 'https://bungie.net/Platform/Destiny2/'
+baseurl = 'https://www.bungie.net/Platform/Destiny2/'
 baseurl_groupv2 = 'https://bungie.net/Platform/GroupV2/'
 
 membership_types = {'xbox': '1',  'xbone': '1', 'psn': '2', 'pc': '4', 'ps4': '2'}
@@ -500,9 +500,11 @@ def main():
 
     # user_name = 'cortical_iv'  # put name of person whose info/clan you want to explore
     # user_platform = 'psn'  # either 'psn' or 'ps4' or 'xbone' or 'xbox'  (pc is busted)
+    user_name = 'Chobofied#0631'
+    user_name = user_name.replace('#', '%23')
     save_to_file = 0
 
-    user_name = 'Chobofied'
+    ##user_name = 'Chobofied'
     user_platform = 'xbox'
 
     # %%SearchDestinyPlayer to get user id

@@ -4,7 +4,7 @@ import Main_Token_Thread
 import Destiny_test
 
 def identify_item(item,api_key):
-    item_instance_id = item['itemInstanceId']
+    ##item_instance_id = item['itemInstanceId']
     item_hash = str(item['itemHash'])
 
     baseurl = 'https://bungie.net/Platform/Destiny2/'
@@ -148,6 +148,7 @@ for item in char_items:
 
 
 #components = '200,205'
+#https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
 components = '201'
 
 membership_type='1'
@@ -165,7 +166,19 @@ my_headers = {
     'X-API-Key': api_key,
     'Authorization': 'Bearer ' + access_token}
 
-response2 = requests.request("GET", char_url, headers=my_headers)
+response2 = requests.request("GET", char_url, headers=my_headers).json()
+
+char_data=response2['Response']['inventory']['data']['items']
+
+item_data=[]
+count=1
+for item in char_data:
+    #item_ident.append(identify_item(item, api_key))
+    count=count+1
+    print(count)
+    item_data.append(identify_item(item,api_key))
+
+
 
 character_summary = requests.get(char_url, headers = my_headers)
 character_summary=character_summary.json()

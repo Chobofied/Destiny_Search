@@ -14,7 +14,6 @@ class App_Data:
     api_key = 'x'
 
 
-
 app = Flask(__name__)
 
 @app.route('/')
@@ -63,19 +62,12 @@ def homepage():
 
 def make_authorization_url():
     CLIENT_ID = App_Data.Client_ID
-    # Generate a random string for the state parameter
-    # Save it for use later to prevent xsrf attacks
-    from uuid import uuid4
-    state = str(uuid4())
-    #save_created_state(state)
+  
+ 
     params = {"client_id": CLIENT_ID,
               "response_type": "code",
               "reauth": 'true'}
-              #"redirect_uri": REDIRECT_URI}
-    # "state": state,
-    # "redirect_uri": REDIRECT_URI,
-    # "duration": "temporary",
-    # "scope": "identity"}
+  
     import urllib
     url = "https://www.bungie.net/en/oauth/authorize?" + urllib.parse.urlencode(params)
     return url

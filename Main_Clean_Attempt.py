@@ -97,15 +97,12 @@ class Destiny_Data():
                 'X-API-Key': self.api_key,
                 'Authorization': 'Bearer ' + self.access_token}
 
-
         url2 = "https://www.bungie.net/Platform/User/GetCurrentBungieNetUser/"
 
         self.User_Data = requests.request("GET", url2, headers=headers)
         self.User_Data=json.loads(self.User_Data.text)
         print(self.User_Data['Response']['uniqueName'])
-        x=4
                
-
 
 def Main_Routine(token_file,CLIENT_ID,CLIENT_SECRET,api_key):
     #token_file="token.txt"

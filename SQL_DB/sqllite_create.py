@@ -1,7 +1,7 @@
 #https://realpython.com/python-sql-libraries/#creating-tables
 
 
-import SQL_Querie
+import SQL_DB
 import sqlite3
 from sqlite3 import Error
 
@@ -55,15 +55,15 @@ def example_routine():
   test_sql=sqllite_db(path)
 
   #Creates lists of the Tables and Data to added to the SQLlite Database
-  Tables=(SQL_Querie.Create.create_users_table,
-          SQL_Querie.Create.create_posts_table,
-          SQL_Querie.Create.create_comments_table,
-          SQL_Querie.Create.create_likes_table)
+  Tables=(SQL_DB.Create.create_users_table,
+          SQL_DB.Create.create_posts_table,
+          SQL_DB.Create.create_comments_table,
+          SQL_DB.Create.create_likes_table)
 
-  Tables_Data=(SQL_Querie.Create.create_users,
-              SQL_Querie.Create.create_posts,
-              SQL_Querie.Create.create_comments,
-              SQL_Querie.Create.create_likes)
+  Tables_Data=(SQL_DB.Create.create_users,
+              SQL_DB.Create.create_posts,
+              SQL_DB.Create.create_comments,
+              SQL_DB.Create.create_likes)
 
   #Creates the Tables and fills them with data
   for Table in Tables:
@@ -74,7 +74,7 @@ def example_routine():
 
 
   #Reads Specific Data from the Database and printes them
-  results=test_sql.execute_read_query(SQL_Querie.Select.select_users_posts)
+  results=test_sql.execute_read_query(SQL_DB.Select.select_users_posts)
 
   for result in results:
         print(result)
@@ -89,7 +89,7 @@ def example_routine():
   """
 
   test_sql.execute_query(User_Append)
-  #test_sql.execute_query(SQL_Querie.Create.create_users_table)
+  #test_sql.execute_query(SQL_DB.Create.create_users_table)
 
 
   #User Input Data, SQL injection protection

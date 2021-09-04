@@ -6,7 +6,7 @@ import os.path
 import time
 
 
-import SQL_Querie
+import SQL_DB
 
 class Destiny_Session():
 
@@ -22,6 +22,22 @@ class Destiny_Session():
         self.headers = {
             'X-API-Key': self.api_key,
             'Authorization': 'Bearer ' + self.access_token}
+
+        self.Make_DB()
+
+    def Make_DB(self):
+
+        cur_dir = str(os.getcwd())+'\\SQL_DB'
+        DB_Name='Destiny_Data.db'
+        DB_Path=str(cur_dir)+'\\'+str(DB_Name)
+
+        if os.path.isfile(DB_Path):
+            str('DataBase Already Exists')
+    
+        else:
+            self.Destiny_DB=SQL_DB.sqllite_create.sqllite_db(DB_Path)
+
+
 
     #This gets the unqiue Bungie User_Name (Cross Play)
     def get_User_Data(self):
@@ -71,6 +87,9 @@ class Destiny_Session():
         
         url= self.baseurl + 'Manifest/' + 'DestinyInventoryItemDefinition' + '/' + str(self.entity_hash)
         response = requests.get(url, headers = self.headers)
+
+
+
         self.AA=response.text
         type(self.AA)
         self.stud_obj = json.loads(self.AA)
@@ -85,9 +104,9 @@ class Destiny_Session():
 
         x=3
     def add_sqllite(self):
-        path="C://Users//Taylo//OneDrive//Python//Projects//Destiny//Main1//SQL_Querie//sqllite_test.db"
+        #path="C://Users//Taylo//OneDrive//Python//Projects//Destiny//Main1//SQL_DB//sqllite_test.db"
         
-        test_sql=SQL_Querie.sqllite_create.sqllite_db(path)
+        #test_sql=SQL_DB.sqllite_create.sqllite_db(path)
 
         create_users_table = """
 CREATE TABLE IF NOT EXISTS users (
@@ -114,12 +133,24 @@ CREATE TABLE IF NOT EXISTS users (
                 jresp TEXT NOT NULL,
                 );"""  
                    
-        test_sql.execute_query(create_users_table)
+        self.Destiny_DB.execute_query(create_users_table)
 
         The_Name='RealSlimShady'
-        test_sql.cursor.execute("INSERT INTO users (hash, jresp) VALUES (?,?)",(self.entity_hash, self.AA))
-        test_sql.connection.commit()
-         #Tables=(create_users_table)
+        self.Destiny_DB.cursor.execute("INSERT INTO users (hash, jresp) VALUES (?,?)",(self.entity_hash, self.AA))
+        self.Destiny_DB.connection.commit()
+
+        Select_Item="""SELECT * FROM users
+                        WHERE id=1;"""
+
+        results=self.Destiny_DB.execute_read_query(Select_Item)
+
+        for result in results:
+                print(result)
+                AA=json.loads(result[2])
+
+        x=2
+
+    
          
 
 

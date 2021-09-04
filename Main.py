@@ -7,7 +7,7 @@ import time
 
 from Destiny_Querie import Destiny_Session
 
-import SQL_Querie
+import SQL_DB
 
 
 

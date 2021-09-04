@@ -31,11 +31,16 @@ class Destiny_Session():
         DB_Name='Destiny_Data.db'
         DB_Path=str(cur_dir)+'\\'+str(DB_Name)
 
+        self.Destiny_DB=SQL_DB.sqllite_create.sqllite_db(DB_Path)
+
+        """
         if os.path.isfile(DB_Path):
             str('DataBase Already Exists')
     
         else:
             self.Destiny_DB=SQL_DB.sqllite_create.sqllite_db(DB_Path)
+        
+        """
 
 
 
@@ -117,11 +122,12 @@ CREATE TABLE IF NOT EXISTS users (
   nationality TEXT
 );
 """
-        create_users_table = """
-CREATE TABLE IF NOT EXISTS users (
+        create_itemhash_table = """
+CREATE TABLE IF NOT EXISTS itemhash (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   hash TEXT NOT NULL,
-  jresp INTEGER
+  jresp INTEGER,
+  UNIQUE(hash, jresp)
 );
 """
 
@@ -133,13 +139,19 @@ CREATE TABLE IF NOT EXISTS users (
                 jresp TEXT NOT NULL,
                 );"""  
                    
-        self.Destiny_DB.execute_query(create_users_table)
+        self.Destiny_DB.execute_query(create_itemhash_table)
 
         The_Name='RealSlimShady'
-        self.Destiny_DB.cursor.execute("INSERT INTO users (hash, jresp) VALUES (?,?)",(self.entity_hash, self.AA))
+        try:
+            self.Destiny_DB.cursor.execute("INSERT INTO itemhash (hash, jresp) VALUES (?,?)",(self.entity_hash, self.AA))
+        except Exception as e:
+            print( "<p>Error: %s</p>" % str(e) )
+            print('This input already exists')
+
+
         self.Destiny_DB.connection.commit()
 
-        Select_Item="""SELECT * FROM users
+        Select_Item="""SELECT * FROM itemhash
                         WHERE id=1;"""
 
         results=self.Destiny_DB.execute_read_query(Select_Item)

@@ -94,7 +94,6 @@ class Destiny_Session():
         response = requests.get(url, headers = self.headers)
 
 
-
         self.AA=response.text
         type(self.AA)
         self.stud_obj = json.loads(self.AA)
@@ -103,42 +102,22 @@ class Destiny_Session():
         item=json.loads(response.content)['Response']
         self.add_sqllite()
 
-
-
-
-
         x=3
     def add_sqllite(self):
         #path="C://Users//Taylo//OneDrive//Python//Projects//Destiny//Main1//SQL_DB//sqllite_test.db"
         
         #test_sql=SQL_DB.sqllite_create.sqllite_db(path)
 
-        create_users_table = """
-CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  age INTEGER,
-  gender TEXT,
-  nationality TEXT
-);
-"""
+
         create_itemhash_table = """
-CREATE TABLE IF NOT EXISTS itemhash (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  hash TEXT NOT NULL,
-  jresp INTEGER,
-  UNIQUE(hash, jresp)
-);
-"""
-
-
-        create_items_table = """
-                CREATE TABLE IF NOT EXISTS items (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                hash TEXT NOT NULL,
-                jresp TEXT NOT NULL,
-                );"""  
-                   
+            CREATE TABLE IF NOT EXISTS itemhash (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            hash INTEGER,
+            jresp TEXT NOT NULL,
+            UNIQUE(hash, jresp)
+            );
+            """
+    
         self.Destiny_DB.execute_query(create_itemhash_table)
 
         The_Name='RealSlimShady'
@@ -148,8 +127,14 @@ CREATE TABLE IF NOT EXISTS itemhash (
             print( "<p>Error: %s</p>" % str(e) )
             print('This input already exists')
 
-
         self.Destiny_DB.connection.commit()
+
+        X=1216130969
+
+        self.Destiny_DB.cursor.execute("SELECT * FROM itemhash WHERE hash=(?)",('1216130969',))
+        #self.Destiny_DB.execute_read_query("SELECT * FROM itemhash WHERE hash=(?)",(1216130969))
+        result = self.Destiny_DB.cursor.fetchall()
+
 
         Select_Item="""SELECT * FROM itemhash
                         WHERE id=1;"""

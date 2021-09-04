@@ -7,6 +7,10 @@ import time
 
 from Destiny_Querie import Destiny_Session
 
+import SQL_Querie
+
+
+
 class Destiny_Data():
     def __init__(self,token_file,CLIENT_ID,CLIENT_SECRET,api_key):
         self.C_ID=CLIENT_ID
@@ -115,6 +119,7 @@ def Main_Routine(token_file,CLIENT_ID,CLIENT_SECRET,api_key):
     Session.get_User_Data()
     Session.get_Player_Summary()
     Session.get_Char_Data()
+    
 
     x=4
 

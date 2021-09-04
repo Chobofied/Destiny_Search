@@ -5,10 +5,15 @@ import Destiny_test
 import os.path
 import time
 
+
+import SQL_Querie
+
 class Destiny_Session():
+
+    #initial Data to use in Searches
     def __init__(self,User):
-        self.C_ID=User.C_ID
-        self.C_S=User.C_S
+        #self.C_ID=User.C_ID
+        #self.C_S=User.C_S
         self.api_key=User.api_key
         self.access_token=User.access_token
         self.baseurl='https://www.bungie.net/Platform/Destiny2/'
@@ -18,6 +23,7 @@ class Destiny_Session():
             'X-API-Key': self.api_key,
             'Authorization': 'Bearer ' + self.access_token}
 
+    #This gets the unqiue Bungie User_Name (Cross Play)
     def get_User_Data(self):
         headers = {
                 'X-API-Key': self.api_key,
@@ -29,9 +35,12 @@ class Destiny_Session():
         self.User_Data=json.loads(self.User_Data.text)
 
         self.user_name = self.User_Data['Response']['uniqueName']
+
+        #For whatever reason, the # in the Bungie Unique name needs to be replaced with '%23' in order for the searches to work correctly
         self.user_name = self.user_name.replace('#', '%23')
         print(self.User_Data['Response']['uniqueName'])
 
+    #This gets general Player information (membership ID, ect)
     def get_Player_Summary(self):
         url=self.baseurl + 'SearchDestinyPlayer/' + self.membership_type + '/' + self.user_name + '/'
        
@@ -41,10 +50,78 @@ class Destiny_Session():
         self.membershipId=self.Player_Summary['membershipId']
         x=4
 
+    #This looks up specific information about the character (What items they have equipped) depending on the component selected. Some are public and some are private (needs Access Key)
+    # See https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html for a list of components that can be quiered 
+    
     def get_Char_Data(self):
         #components='200,205'
-        components='201'
+        components='200,201,205'
         url=self.baseurl + self.membership_type + '/' + 'Profile/' + self.membershipId + '/?components=' + components
         response = requests.get(url, headers = self.headers)
-        response=json.loads(response.content)['Response']
-        x=3        
+        self.Char_Data=json.loads(response.content)['Response']
+        self.Char_ID=list(self.Char_Data['characterEquipment']['data'].keys())[0]
+        
+        self.entity_hash=self.Char_Data['characterEquipment']['data'][str(self.Char_ID)]['items'][0]['itemHash']
+        self.get_Item_Data()
+        x=3       
+
+    def get_Item_Data(self):
+        #Lets make an SQL Database  here, if it doesnt exist, then request it from Bungie
+
+        
+        url= self.baseurl + 'Manifest/' + 'DestinyInventoryItemDefinition' + '/' + str(self.entity_hash)
+        response = requests.get(url, headers = self.headers)
+        self.AA=response.text
+        type(self.AA)
+        self.stud_obj = json.loads(self.AA)
+        type(self.stud_obj)
+
+        item=json.loads(response.content)['Response']
+        self.add_sqllite()
+
+
+
+
+
+        x=3
+    def add_sqllite(self):
+        path="C://Users//Taylo//OneDrive//Python//Projects//Destiny//Main1//SQL_Querie//sqllite_test.db"
+        
+        test_sql=SQL_Querie.sqllite_create.sqllite_db(path)
+
+        create_users_table = """
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  age INTEGER,
+  gender TEXT,
+  nationality TEXT
+);
+"""
+        create_users_table = """
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  hash TEXT NOT NULL,
+  jresp INTEGER
+);
+"""
+
+
+        create_items_table = """
+                CREATE TABLE IF NOT EXISTS items (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                hash TEXT NOT NULL,
+                jresp TEXT NOT NULL,
+                );"""  
+                   
+        test_sql.execute_query(create_users_table)
+
+        The_Name='RealSlimShady'
+        test_sql.cursor.execute("INSERT INTO users (hash, jresp) VALUES (?,?)",(self.entity_hash, self.AA))
+        test_sql.connection.commit()
+         #Tables=(create_users_table)
+         
+
+
+
+

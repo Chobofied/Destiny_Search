@@ -33,16 +33,18 @@ class Destiny_Session():
 
         self.Destiny_DB=SQL_DB.sqllite_create.sqllite_db(DB_Path)
 
-        """
-        if os.path.isfile(DB_Path):
-            str('DataBase Already Exists')
+
+        create_itemhash_table = """
+            CREATE TABLE IF NOT EXISTS itemhash (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            hash INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            jresp TEXT NOT NULL,
+            UNIQUE(hash, jresp)
+            );
+            """
     
-        else:
-            self.Destiny_DB=SQL_DB.sqllite_create.sqllite_db(DB_Path)
-        
-        """
-
-
+        self.Destiny_DB.execute_query(create_itemhash_table)
 
     #This gets the unqiue Bungie User_Name (Cross Play)
     def get_User_Data(self):
@@ -81,6 +83,13 @@ class Destiny_Session():
         response = requests.get(url, headers = self.headers)
         self.Char_Data=json.loads(response.content)['Response']
         self.Char_ID=list(self.Char_Data['characterEquipment']['data'].keys())[0]
+
+        self.equiped_items=self.Char_Data['characterEquipment']['data'][str(self.Char_ID)]['items']
+
+        self.equiped_names=[]
+        for item in self.equiped_items:
+            self.entity_hash=item['itemHash']
+            self.get_Item_Data()
         
         self.entity_hash=self.Char_Data['characterEquipment']['data'][str(self.Char_ID)]['items'][0]['itemHash']
         self.get_Item_Data()
@@ -89,36 +98,47 @@ class Destiny_Session():
     def get_Item_Data(self):
         #Lets make an SQL Database  here, if it doesnt exist, then request it from Bungie
 
-        
+        # Tries to look for entity hash data in 'itemhash' table from 'Destiny_Data.db'
+        try:
+            self.Destiny_DB.cursor.execute("SELECT * FROM itemhash WHERE hash=(?)",(str(self.entity_hash),))
+            result_STRING = self.Destiny_DB.cursor.fetchall()
+            self.result_JSON=json.loads(result_STRING[0][3])['Response']
+
+        # If there is an error looking up the item hash data, creates a new one by sending a request to Bungie'
+        except Exception as e:
+            print( "<p>Error: %s</p>" % str(e) )
+
+            # Sends Item Hash Request to Bungie
+            url= self.baseurl + 'Manifest/' + 'DestinyInventoryItemDefinition' + '/' + str(self.entity_hash)
+            result_STRING = requests.get(url, headers = self.headers).text
+            self.result_JSON = json.loads(result_STRING)['Response']
+
+            # Inserts Item Hash results into an SQLlite DB to be queried later
+            self.Destiny_DB.cursor.execute("INSERT INTO itemhash (hash, name, jresp) VALUES (?,?,?)",(self.entity_hash,self.result_JSON['displayProperties']['name'], result_STRING))
+            self.Destiny_DB.connection.commit()
+
+        finally:
+            #self.result_JSON['displayProperties']['name']
+            self.equiped_names.append(self.result_JSON['displayProperties']['name'])
+
+        """
         url= self.baseurl + 'Manifest/' + 'DestinyInventoryItemDefinition' + '/' + str(self.entity_hash)
         response = requests.get(url, headers = self.headers)
-
-
         self.AA=response.text
         type(self.AA)
         self.stud_obj = json.loads(self.AA)
         type(self.stud_obj)
-
         item=json.loads(response.content)['Response']
         self.add_sqllite()
-
         x=3
+        """
+
     def add_sqllite(self):
         #path="C://Users//Taylo//OneDrive//Python//Projects//Destiny//Main1//SQL_DB//sqllite_test.db"
         
         #test_sql=SQL_DB.sqllite_create.sqllite_db(path)
 
 
-        create_itemhash_table = """
-            CREATE TABLE IF NOT EXISTS itemhash (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            hash INTEGER,
-            jresp TEXT NOT NULL,
-            UNIQUE(hash, jresp)
-            );
-            """
-    
-        self.Destiny_DB.execute_query(create_itemhash_table)
 
         The_Name='RealSlimShady'
         try:

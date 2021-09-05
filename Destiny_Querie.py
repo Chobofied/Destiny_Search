@@ -96,7 +96,7 @@ class Destiny_Session():
         
         #self.entity_hash=self.Char_Data['characterEquipment']['data'][str(self.Char_ID)]['items'][0]['itemHash']
         #self.get_Item_Data()
-        x=3       
+        x=5       
 
     def get_Item_Data(self):
         #Lets make an SQL Database  here, if it doesnt exist, then request it from Bungie

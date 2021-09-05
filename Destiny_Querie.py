@@ -86,7 +86,8 @@ class Destiny_Session():
 
         self.equiped_items=self.Char_Data['characterEquipment']['data'][str(self.Char_ID)]['items']
 
-        self.equiped_names=[]
+        
+        self.equiped={}
         for item in self.equiped_items:
             self.entity_hash=item['itemHash']
             self.get_Item_Data()
@@ -119,7 +120,17 @@ class Destiny_Session():
 
         finally:
             #self.result_JSON['displayProperties']['name']
-            self.equiped_names.append(self.result_JSON['displayProperties']['name'])
+            item_name=self.result_JSON['displayProperties']['name']
+            image_url='https://www.bungie.net'+self.result_JSON['displayProperties']['icon']
+            self.equiped[str(self.entity_hash)]=[item_name,image_url]
+            
+            img_data = requests.get(image_url).content
+
+            cur_dir = str(os.getcwd())+'\\SQL_DB\\images\\'
+
+            with open(cur_dir+item_name+'.jpg', 'wb') as handler:
+                handler.write(img_data)
+
 
         """
         url= self.baseurl + 'Manifest/' + 'DestinyInventoryItemDefinition' + '/' + str(self.entity_hash)

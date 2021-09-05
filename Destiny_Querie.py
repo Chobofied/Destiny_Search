@@ -86,14 +86,16 @@ class Destiny_Session():
 
         self.equiped_items=self.Char_Data['characterEquipment']['data'][str(self.Char_ID)]['items']
 
-        
+        #Empty Dictionary to be filled with infomation of the equiped items
         self.equiped={}
+
+        # Loop Through all the equiped items and saves their results in a DB
         for item in self.equiped_items:
             self.entity_hash=item['itemHash']
             self.get_Item_Data()
         
-        self.entity_hash=self.Char_Data['characterEquipment']['data'][str(self.Char_ID)]['items'][0]['itemHash']
-        self.get_Item_Data()
+        #self.entity_hash=self.Char_Data['characterEquipment']['data'][str(self.Char_ID)]['items'][0]['itemHash']
+        #self.get_Item_Data()
         x=3       
 
     def get_Item_Data(self):
@@ -109,7 +111,7 @@ class Destiny_Session():
         except Exception as e:
             print( "<p>Error: %s</p>" % str(e) )
 
-            # Sends Item Hash Request to Bungie
+            # Sends Item Hash Request to Bungie and formats to a dictionary (JSON)
             url= self.baseurl + 'Manifest/' + 'DestinyInventoryItemDefinition' + '/' + str(self.entity_hash)
             result_STRING = requests.get(url, headers = self.headers).text
             self.result_JSON = json.loads(result_STRING)['Response']
@@ -119,30 +121,20 @@ class Destiny_Session():
             self.Destiny_DB.connection.commit()
 
         finally:
-            #self.result_JSON['displayProperties']['name']
+            #Gets the Item Name and image URL
             item_name=self.result_JSON['displayProperties']['name']
             image_url='https://www.bungie.net'+self.result_JSON['displayProperties']['icon']
-            self.equiped[str(self.entity_hash)]=[item_name,image_url]
-            
-            img_data = requests.get(image_url).content
 
+            #Adds the item name and image url to the equiped item dictionary
+            self.equiped[str(self.entity_hash)]=[item_name,image_url]
+
+            #Request Bungie for the image and save it locally
+            img_data = requests.get(image_url).content
             cur_dir = str(os.getcwd())+'\\SQL_DB\\images\\'
 
             with open(cur_dir+item_name+'.jpg', 'wb') as handler:
                 handler.write(img_data)
 
-
-        """
-        url= self.baseurl + 'Manifest/' + 'DestinyInventoryItemDefinition' + '/' + str(self.entity_hash)
-        response = requests.get(url, headers = self.headers)
-        self.AA=response.text
-        type(self.AA)
-        self.stud_obj = json.loads(self.AA)
-        type(self.stud_obj)
-        item=json.loads(response.content)['Response']
-        self.add_sqllite()
-        x=3
-        """
 
     def add_sqllite(self):
         #path="C://Users//Taylo//OneDrive//Python//Projects//Destiny//Main1//SQL_DB//sqllite_test.db"

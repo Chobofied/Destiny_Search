@@ -129,6 +129,19 @@ def Main_Routine(token_file,CLIENT_ID,CLIENT_SECRET,api_key):
     Session.get_Player_Summary()
     Session.get_Char_Data()
     Session.get_historical_stats()
+
+    select_users_posts = """
+SELECT
+  users.id,
+  users.username,
+  KDR.KDR
+FROM
+  KDR
+  INNER JOIN users ON users.id = KDR.user_id
+"""
+    Session.Destiny_DB.cursor.execute(select_users_posts)
+    result_STRING = Session.Destiny_DB.cursor.fetchall()
+
     
 
     x=4

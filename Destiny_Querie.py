@@ -36,20 +36,14 @@ class Destiny_Session():
         DB_Name='Destiny_Data.db'
         DB_Path=str(cur_dir)+'\\'+str(DB_Name)
 
+        #Initiates the Database, creates one if it doesnt already exist
         self.Destiny_DB=SQL_DB.sqllite_create.sqllite_db(DB_Path)
 
-
-        create_itemhash_table = """
-            CREATE TABLE IF NOT EXISTS itemhash (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            hash INTEGER NOT NULL,
-            name TEXT NOT NULL,
-            jresp TEXT NOT NULL,
-            UNIQUE(hash, jresp)
-            );
-            """
-    
-        self.Destiny_DB.execute_query(create_itemhash_table)
+        #Makes the SQL Tables
+        self.Destiny_DB.execute_query(SQL_DB.create.create_itemhash_table)
+        self.Destiny_DB.execute_query(SQL_DB.create.create_users_table)
+        self.Destiny_DB.execute_query(SQL_DB.create.create_KDR_table)
+        
 
     #This gets the unqiue Bungie User_Name (Cross Play)
     def get_User_Name(self):
@@ -64,6 +58,10 @@ class Destiny_Session():
         #For whatever reason, the # in the Bungie Unique name needs to be replaced with '%23' in order for the searches to work correctly
         self.user_name = self.user_name.replace('#', '%23')
         print(self.User_Data['Response']['uniqueName'])
+
+        self.Destiny_DB.cursor.execute("INSERT INTO users (username) VALUES (?)",(self.user_name,))
+        self.Destiny_DB.connection.commit()
+
 
     #This gets general Player information (membership ID, ect)
     def get_Player_Summary(self):
@@ -146,7 +144,13 @@ class Destiny_Session():
 
 
         response = requests.get(url, headers = self.headers)
+        self.hist_Data=json.loads(response.content)['Response']
+        self.KDR=self.hist_Data['allPvP']['allTime']['killsDeathsRatio']['basic']['displayValue']
         x=4
+
+    # Inserts Item Hash results into an SQLlite DB to be queried later
+        self.Destiny_DB.cursor.execute("INSERT INTO KDR (KDR, user_id) VALUES (?,?)",(self.KDR,'1',))
+        self.Destiny_DB.connection.commit()
 
 
         """
@@ -170,7 +174,9 @@ def Main_Routine(api_key,access_token,user_name):
         Session.user_name = Session.user_name.replace('#', '%23')
     Session.get_Player_Summary()
     Session.get_Char_Data()
-    Session.get_historical_stats
+    Session.get_historical_stats()
+
+    
     
 
     x=4

@@ -180,16 +180,39 @@ def Main_Routine(api_key,access_token,user_name):
 
     
     Session=Destiny_Session(api_key,access_token)
+
+    Session.access_token=None
+
+
+    #Session.headers = {
+    #            'X-API-Key': api_key}
+
+
+    Session.user_name=user_name
     
     # If a User Token is not provided, Need to enter Bungie Unique Name Manually
-    if access_token!=None:
+    if Session.access_token!=None:
         Session.get_User_Name()
     else:
-        Session.user_name=user_name
+        #Session.user_name='Chobofied#0631'
+        #Session.user_name='jackdubs25#0362'
         Session.user_name = Session.user_name.replace('#', '%23')
+
+        #Tries and inserts the username to the user table. skips if already exists
+        try:
+            Session.Destiny_DB.cursor.execute("INSERT INTO users (username) VALUES (?)",(Session.user_name,))
+            Session.Destiny_DB.connection.commit()
+        
+        except Exception as e:
+            print( "<p>Error: %s</p>" % str(e) )
     Session.get_Player_Summary()
     Session.get_Char_Data()
     Session.get_historical_stats()
+
+
+    Session.Destiny_DB.cursor.execute(Sel.select_users_KDR)
+    result_STRING = Session.Destiny_DB.cursor.fetchall()
+    
     x=4
 
 
@@ -197,9 +220,10 @@ if __name__ == '__main__':
 
     #Only Requiered if access token is not given
     user_name='Chobofied#0631'
+    #user_name='jackdubs25#0362'
 
     api_key='afb7b0fcc0604ab49612af8de1b758f2'
-    access_token='COi/AxKGAgAghWkYJYcSS/EzMsCLL2xevEEMJVsHiENKOJ4gB17MFkbgAAAAjyu8M86RWPZ6NOZ0mAia1c3s8UqyDyxyzh+vZybr5OtIneVAmBF2iuwHvm3jHGUvsfqGJWRTmbA7c4r3PFWSh7jFBqWkfRvzNfbyvHkajZti68WLa6slHRcHPIjTWpQjYqPPnJTCyizOrarbr86pPcIJMiTo7b9FK+f/s+tgBt/skb39WRBYORert17fZOar/J7qjIu1xKMyC1LfYXEEUuAXgXZ/++0DQ+ySzHYCIUrW3au3elAgTCNnWO79yw2sx688mWi1IxYD4lv28puXpLCLSJ8SmkgPoG4BYIwuaN8='
+    access_token=None
 
     Main_Routine(api_key,access_token,user_name)
     

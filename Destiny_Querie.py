@@ -11,17 +11,22 @@ import SQL_DB
 class Destiny_Session():
 
     #initial Data to use in Searches
-    def __init__(self,User):
-        #self.C_ID=User.C_ID
-        #self.C_S=User.C_S
-        self.api_key=User.api_key
-        self.access_token=User.access_token
+    def __init__(self,api_key,access_token):
+ 
+        self.api_key=api_key
+        self.access_token=access_token
         self.baseurl='https://www.bungie.net/Platform/Destiny2/'
         self.membership_type='1'
 
-        self.headers = {
-            'X-API-Key': self.api_key,
-            'Authorization': 'Bearer ' + self.access_token}
+        
+        if self.access_token==None:
+             self.headers = {
+                'X-API-Key': self.api_key}
+        else:
+            self.headers = {
+                'X-API-Key': self.api_key,
+                'Authorization': 'Bearer ' + self.access_token}
+
 
         self.Make_DB()
 
@@ -47,14 +52,11 @@ class Destiny_Session():
         self.Destiny_DB.execute_query(create_itemhash_table)
 
     #This gets the unqiue Bungie User_Name (Cross Play)
-    def get_User_Data(self):
-        headers = {
-                'X-API-Key': self.api_key,
-                'Authorization': 'Bearer ' + self.access_token}
+    def get_User_Name(self):
 
         url2 = "https://www.bungie.net/Platform/User/GetCurrentBungieNetUser/"
 
-        self.User_Data = requests.request("GET", url2, headers=headers)
+        self.User_Data = requests.request("GET", url2, headers=self.headers)
         self.User_Data=json.loads(self.User_Data.text)
 
         self.user_name = self.User_Data['Response']['uniqueName']
@@ -84,18 +86,16 @@ class Destiny_Session():
         self.Char_Data=json.loads(response.content)['Response']
         self.Char_ID=list(self.Char_Data['characterEquipment']['data'].keys())[0]
 
-        self.equiped_items=self.Char_Data['characterEquipment']['data'][str(self.Char_ID)]['items']
+        self.equiped_hash=self.Char_Data['characterEquipment']['data'][str(self.Char_ID)]['items']
 
         #Empty Dictionary to be filled with infomation of the equiped items
         self.equiped={}
 
         # Loop Through all the equiped items and saves their results in a DB
-        for item in self.equiped_items:
+        for item in self.equiped_hash:
             self.entity_hash=item['itemHash']
             self.get_Item_Data()
         
-        #self.entity_hash=self.Char_Data['characterEquipment']['data'][str(self.Char_ID)]['items'][0]['itemHash']
-        #self.get_Item_Data()
         x=5       
 
     def get_Item_Data(self):
@@ -135,41 +135,57 @@ class Destiny_Session():
             with open(cur_dir+item_name+'.jpg', 'wb') as handler:
                 handler.write(img_data)
 
-
-    def add_sqllite(self):
-        #path="C://Users//Taylo//OneDrive//Python//Projects//Destiny//Main1//SQL_DB//sqllite_test.db"
+    def get_historical_stats(self):
         
-        #test_sql=SQL_DB.sqllite_create.sqllite_db(path)
+        activity_modes='None'
+        query_string = '?modes=' + activity_modes
+
+        url='test'
+
+        url=self.baseurl+self.membership_type+ '/Account/' + self.membershipId + '/Character/' + self.Char_ID + '/Stats/' + query_string
 
 
-
-        The_Name='RealSlimShady'
-        try:
-            self.Destiny_DB.cursor.execute("INSERT INTO itemhash (hash, jresp) VALUES (?,?)",(self.entity_hash, self.AA))
-        except Exception as e:
-            print( "<p>Error: %s</p>" % str(e) )
-            print('This input already exists')
-
-        self.Destiny_DB.connection.commit()
-
-        X=1216130969
-
-        self.Destiny_DB.cursor.execute("SELECT * FROM itemhash WHERE hash=(?)",('1216130969',))
-        #self.Destiny_DB.execute_read_query("SELECT * FROM itemhash WHERE hash=(?)",(1216130969))
-        result = self.Destiny_DB.cursor.fetchall()
+        response = requests.get(url, headers = self.headers)
+        x=4
 
 
-        Select_Item="""SELECT * FROM itemhash
-                        WHERE id=1;"""
+        """
+        user_id = get_user_id(user_name, user_platform, my_api_key)
+        membership_type = membership_types[user_platform]
+        query_string = '?modes=' + activity_modes
+        return baseurl + membership_type + '/Account/' + user_id + '/Character/' + \
+           character_id + '/Stats/' + query_string
+        """
 
-        results=self.Destiny_DB.execute_read_query(Select_Item)
+def Main_Routine(api_key,access_token,user_name):
 
-        for result in results:
-                print(result)
-                AA=json.loads(result[2])
+    
+    Session=Destiny_Session(api_key,access_token)
+    
+    # If a User Token is not provided, Need to enter Bungie Unique Name Manually
+    if access_token!=None:
+        Session.get_User_Name()
+    else:
+        Session.user_name=user_name
+        Session.user_name = Session.user_name.replace('#', '%23')
+    Session.get_Player_Summary()
+    Session.get_Char_Data()
+    Session.get_historical_stats
+    
 
-        x=2
+    x=4
 
+
+if __name__ == '__main__':
+
+    #Only Requiered if access token is not given
+    user_name='Chobofied#0631'
+
+    api_key='afb7b0fcc0604ab49612af8de1b758f2'
+    access_token='COi/AxKGAgAghWkYJYcSS/EzMsCLL2xevEEMJVsHiENKOJ4gB17MFkbgAAAAjyu8M86RWPZ6NOZ0mAia1c3s8UqyDyxyzh+vZybr5OtIneVAmBF2iuwHvm3jHGUvsfqGJWRTmbA7c4r3PFWSh7jFBqWkfRvzNfbyvHkajZti68WLa6slHRcHPIjTWpQjYqPPnJTCyizOrarbr86pPcIJMiTo7b9FK+f/s+tgBt/skb39WRBYORert17fZOar/J7qjIu1xKMyC1LfYXEEUuAXgXZ/++0DQ+ySzHYCIUrW3au3elAgTCNnWO79yw2sx688mWi1IxYD4lv28puXpLCLSJ8SmkgPoG4BYIwuaN8='
+
+    Main_Routine(api_key,access_token,user_name)
+    
     
          
 

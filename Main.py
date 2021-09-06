@@ -115,10 +115,20 @@ def Main_Routine(token_file,CLIENT_ID,CLIENT_SECRET,api_key):
     User=Destiny_Data(token_file,CLIENT_ID,CLIENT_SECRET,api_key)
     User.get_User_Data()
 
-    Session=Destiny_Session(User)
-    Session.get_User_Data()
+    # If a User Token is not provided
+    #User.access_token=None
+    
+    Session=Destiny_Session(User.api_key,User.access_token)
+    
+    # If a User Token is not provided, Need to enter Bungie Unique Name Manually
+    if User.access_token!=None:
+        Session.get_User_Name()
+    else:
+        Session.user_name='Chobofied#0631'
+        Session.user_name = Session.user_name.replace('#', '%23')
     Session.get_Player_Summary()
     Session.get_Char_Data()
+    Session.get_historical_stats()
     
 
     x=4
@@ -131,6 +141,7 @@ if __name__ == '__main__':
     CLIENT_ID = "37141"
     api_key='afb7b0fcc0604ab49612af8de1b758f2'
     CLIENT_SECRET='L6j-9vwZFv.uLcbx76o-o9JrEKSglu2Xz6lde45bYSA'
+
     Main_Routine(token_file,CLIENT_ID,CLIENT_SECRET,api_key)
     
 

@@ -6,8 +6,12 @@ import os.path
 import time
 
 from Destiny_Querie import Destiny_Session
+from Token_Creation import main
 
 import SQL_DB
+
+import SQL_DB.Queries.Select as Sel
+import SQL_DB.Queries.create as Cr
 
 
 
@@ -70,16 +74,15 @@ class Destiny_Data():
                 f.write(str(self.refresh_token) + "\n")
                 f.close()
 
-
+            ##THIS CODE IS CURRENTLY NOT USED. OR IF TOKEN HAS EXPERIRED THIS MAY BE REQUIRED
             else:
                 #If there is an error trying to refresh the token, lets make a brand new one
                 import os.path
                 import time
 
-                Main_Token_Thread_Clean_Attempt.main()
-
+                Token_Creation.main(self)
+        
                 dir_path = os.path.dirname(os.path.realpath(__file__))
-
                 # Waits until token.txt file is created
                 # Need to add an async await command here instead, or wait until 'File token.txt' is made
                 while not os.path.exists(dir_path + '/'+self.token_file):
@@ -130,16 +133,8 @@ def Main_Routine(token_file,CLIENT_ID,CLIENT_SECRET,api_key):
     Session.get_Char_Data()
     Session.get_historical_stats()
 
-    select_users_posts = """
-SELECT
-  users.id,
-  users.username,
-  KDR.KDR
-FROM
-  KDR
-  INNER JOIN users ON users.id = KDR.user_id
-"""
-    Session.Destiny_DB.cursor.execute(select_users_posts)
+    #Gets the KDR
+    Session.Destiny_DB.cursor.execute(Sel.select_users_KDR)
     result_STRING = Session.Destiny_DB.cursor.fetchall()
 
     

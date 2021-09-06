@@ -8,6 +8,9 @@ import time
 
 import SQL_DB
 
+import SQL_DB.Queries.Select as Sel
+import SQL_DB.Queries.create as Cr
+
 class Destiny_Session():
 
     #initial Data to use in Searches
@@ -18,7 +21,6 @@ class Destiny_Session():
         self.baseurl='https://www.bungie.net/Platform/Destiny2/'
         self.membership_type='1'
 
-        
         if self.access_token==None:
              self.headers = {
                 'X-API-Key': self.api_key}
@@ -26,7 +28,6 @@ class Destiny_Session():
             self.headers = {
                 'X-API-Key': self.api_key,
                 'Authorization': 'Bearer ' + self.access_token}
-
 
         self.Make_DB()
 
@@ -40,9 +41,10 @@ class Destiny_Session():
         self.Destiny_DB=SQL_DB.sqllite_create.sqllite_db(DB_Path)
 
         #Makes the SQL Tables
-        self.Destiny_DB.execute_query(SQL_DB.create.create_itemhash_table)
-        self.Destiny_DB.execute_query(SQL_DB.create.create_users_table)
-        self.Destiny_DB.execute_query(SQL_DB.create.create_KDR_table)
+        self.Destiny_DB.execute_query(Cr.create_itemhash_table)
+        self.Destiny_DB.execute_query(Cr.create_users_table)
+        self.Destiny_DB.execute_query(Cr.create_KDR_table)
+
         
 
     #This gets the unqiue Bungie User_Name (Cross Play)
@@ -134,32 +136,32 @@ class Destiny_Session():
                 handler.write(img_data)
 
     def get_historical_stats(self):
-        
+
+       
         activity_modes='None'
         query_string = '?modes=' + activity_modes
-
-        url='test'
-
         url=self.baseurl+self.membership_type+ '/Account/' + self.membershipId + '/Character/' + self.Char_ID + '/Stats/' + query_string
-
 
         response = requests.get(url, headers = self.headers)
         self.hist_Data=json.loads(response.content)['Response']
         self.KDR=self.hist_Data['allPvP']['allTime']['killsDeathsRatio']['basic']['displayValue']
         x=4
 
-    # Inserts Item Hash results into an SQLlite DB to be queried later
-        self.Destiny_DB.cursor.execute("INSERT INTO KDR (KDR, user_id) VALUES (?,?)",(self.KDR,'1',))
-        self.Destiny_DB.connection.commit()
+        #Adds KDR for user
+        ##TO DO-- user_ID is currently hardcoded, need to fix
 
+        try:
+            self.Destiny_DB.cursor.execute("INSERT INTO KDR (KDR, user_id) VALUES (?,?)",(self.KDR,'1',))
+            self.Destiny_DB.connection.commit()
 
-        """
-        user_id = get_user_id(user_name, user_platform, my_api_key)
-        membership_type = membership_types[user_platform]
-        query_string = '?modes=' + activity_modes
-        return baseurl + membership_type + '/Account/' + user_id + '/Character/' + \
-           character_id + '/Stats/' + query_string
-        """
+        #If the User is alreay in the Database, lets update it with the latest value
+        except Exception as e:
+            print( "<p>Error: %s</p>" % str(e) )
+            self.Destiny_DB.cursor.execute("UPDATE KDR SET KDR = (?) WHERE user_id = 1;",(self.KDR,))
+            self.Destiny_DB.connection.commit()
+
+  
+
 
 def Main_Routine(api_key,access_token,user_name):
 
@@ -175,10 +177,6 @@ def Main_Routine(api_key,access_token,user_name):
     Session.get_Player_Summary()
     Session.get_Char_Data()
     Session.get_historical_stats()
-
-    
-    
-
     x=4
 
 

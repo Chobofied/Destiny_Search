@@ -8,8 +8,6 @@ UNIQUE(hash, jresp)
 );
 """
 
-
-
 create_users_table = """
 CREATE TABLE IF NOT EXISTS users(
   id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -27,6 +25,18 @@ CREATE TABLE IF NOT EXISTS KDR(
   UNIQUE(user_id)
 );
 """
+
+create_weapon_table="""
+  CREATE TABLE IF NOT EXISTS weapons(
+  weapon_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+  item_id TEXT NOT NULL,
+  item_name TEXT NOT NULL,
+  user_id INTEGER NOT NULL,  
+  FOREIGN KEY (user_id) REFERENCES users (id),
+  UNIQUE(user_id,item_id)
+);
+"""
+
 
 create_comments_table = """
 CREATE TABLE IF NOT EXISTS comments (

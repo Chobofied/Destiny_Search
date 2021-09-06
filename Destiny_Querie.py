@@ -44,6 +44,7 @@ class Destiny_Session():
         self.Destiny_DB.execute_query(Cr.create_itemhash_table)
         self.Destiny_DB.execute_query(Cr.create_users_table)
         self.Destiny_DB.execute_query(Cr.create_KDR_table)
+        self.Destiny_DB.execute_query(Cr.create_weapon_table)
 
         
 
@@ -128,6 +129,9 @@ class Destiny_Session():
             self.Destiny_DB.cursor.execute("INSERT INTO itemhash (hash, name, jresp) VALUES (?,?,?)",(self.entity_hash,self.result_JSON['displayProperties']['name'], result_STRING))
             self.Destiny_DB.connection.commit()
 
+            self.Destiny_DB.cursor.execute("INSERT INTO weapons (item_id, item_name, user_id) VALUES (?,?,?)",(self.entity_hash,self.result_JSON['displayProperties']['name'], self.user_id))
+            self.Destiny_DB.connection.commit()
+
         finally:
             #Gets the Item Name and image URL
             item_name=self.result_JSON['displayProperties']['name']
@@ -155,22 +159,14 @@ class Destiny_Session():
         self.KDR=self.hist_Data['allPvP']['allTime']['killsDeathsRatio']['basic']['displayValue']
         x=4
 
-        #Adds KDR for user
-        ##TO DO-- user_ID is currently hardcoded, need to fix
-
-
-        self.Destiny_DB.cursor.execute("SELECT * FROM users WHERE username=(?)",(str(self.user_name),))
-        user_id = self.Destiny_DB.cursor.fetchall()[0][0]
-
-
         try:
-            self.Destiny_DB.cursor.execute("INSERT INTO KDR (KDR, user_id) VALUES (?,?)",(self.KDR,user_id,))
+            self.Destiny_DB.cursor.execute("INSERT INTO KDR (KDR, user_id) VALUES (?,?)",(self.KDR,self.user_id,))
             self.Destiny_DB.connection.commit()
 
         #If the User is alreay in the Database, lets update it with the latest value
         except Exception as e:
             print( "<p>Error: %s</p>" % str(e) )
-            self.Destiny_DB.cursor.execute("UPDATE KDR SET KDR = (?) WHERE user_id = (?);",(self.KDR,user_id,))
+            self.Destiny_DB.cursor.execute("UPDATE KDR SET KDR = (?) WHERE user_id = (?);",(self.KDR,self.user_id,))
             self.Destiny_DB.connection.commit()
 
   
@@ -202,15 +198,24 @@ def Main_Routine(api_key,access_token,user_name):
         try:
             Session.Destiny_DB.cursor.execute("INSERT INTO users (username) VALUES (?)",(Session.user_name,))
             Session.Destiny_DB.connection.commit()
+
         
         except Exception as e:
             print( "<p>Error: %s</p>" % str(e) )
+        
+        finally:
+            Session.Destiny_DB.cursor.execute("SELECT * FROM users WHERE username=(?)",(str(Session.user_name),))
+            Session.user_id = Session.Destiny_DB.cursor.fetchall()[0][0]
+
     Session.get_Player_Summary()
     Session.get_Char_Data()
     Session.get_historical_stats()
 
 
     Session.Destiny_DB.cursor.execute(Sel.select_users_KDR)
+    result_STRING = Session.Destiny_DB.cursor.fetchall()
+
+    Session.Destiny_DB.cursor.execute(Sel.select_users_weapons)
     result_STRING = Session.Destiny_DB.cursor.fetchall()
     
     x=4
@@ -219,8 +224,8 @@ def Main_Routine(api_key,access_token,user_name):
 if __name__ == '__main__':
 
     #Only Requiered if access token is not given
-    user_name='Chobofied#0631'
-    #user_name='jackdubs25#0362'
+    #user_name='Chobofied#0631'
+    user_name='jackdubs25#0362'
 
     api_key='afb7b0fcc0604ab49612af8de1b758f2'
     access_token=None

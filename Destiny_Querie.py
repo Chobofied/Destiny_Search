@@ -61,8 +61,16 @@ class Destiny_Session():
         self.user_name = self.user_name.replace('#', '%23')
         print(self.User_Data['Response']['uniqueName'])
 
-        self.Destiny_DB.cursor.execute("INSERT INTO users (username) VALUES (?)",(self.user_name,))
-        self.Destiny_DB.connection.commit()
+        #Inserts Username into user table. Skips it if already exists
+        try:
+            self.Destiny_DB.cursor.execute("INSERT INTO users (username) VALUES (?)",(self.user_name,))
+            self.Destiny_DB.connection.commit()
+        
+        except Exception as e:
+            print( "<p>Error: %s</p>" % str(e) )
+
+        
+    
 
 
     #This gets general Player information (membership ID, ect)
@@ -150,14 +158,19 @@ class Destiny_Session():
         #Adds KDR for user
         ##TO DO-- user_ID is currently hardcoded, need to fix
 
+
+        self.Destiny_DB.cursor.execute("SELECT * FROM users WHERE username=(?)",(str(self.user_name),))
+        user_id = self.Destiny_DB.cursor.fetchall()[0][0]
+
+
         try:
-            self.Destiny_DB.cursor.execute("INSERT INTO KDR (KDR, user_id) VALUES (?,?)",(self.KDR,'1',))
+            self.Destiny_DB.cursor.execute("INSERT INTO KDR (KDR, user_id) VALUES (?,?)",(self.KDR,user_id,))
             self.Destiny_DB.connection.commit()
 
         #If the User is alreay in the Database, lets update it with the latest value
         except Exception as e:
             print( "<p>Error: %s</p>" % str(e) )
-            self.Destiny_DB.cursor.execute("UPDATE KDR SET KDR = (?) WHERE user_id = 1;",(self.KDR,))
+            self.Destiny_DB.cursor.execute("UPDATE KDR SET KDR = (?) WHERE user_id = (?);",(self.KDR,user_id,))
             self.Destiny_DB.connection.commit()
 
   

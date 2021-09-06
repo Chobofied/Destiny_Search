@@ -13,7 +13,8 @@ UNIQUE(hash, jresp)
 create_users_table = """
 CREATE TABLE IF NOT EXISTS users(
   id INTEGER PRIMARY KEY AUTOINCREMENT, 
-  username TEXT NOT NULL
+  username TEXT NOT NULL,
+  UNIQUE(username)
 );
 """
 

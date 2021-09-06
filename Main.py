@@ -119,7 +119,7 @@ def Main_Routine(token_file,CLIENT_ID,CLIENT_SECRET,api_key):
     User.get_User_Data()
 
     # If a User Token is not provided
-    #User.access_token=None
+    User.access_token=None
     
     Session=Destiny_Session(User.api_key,User.access_token)
     
@@ -127,8 +127,17 @@ def Main_Routine(token_file,CLIENT_ID,CLIENT_SECRET,api_key):
     if User.access_token!=None:
         Session.get_User_Name()
     else:
-        Session.user_name='Chobofied#0631'
+        #Session.user_name='Chobofied#0631'
+        Session.user_name='jackdubs25#0362'
         Session.user_name = Session.user_name.replace('#', '%23')
+
+
+        try:
+            Session.Destiny_DB.cursor.execute("INSERT INTO users (username) VALUES (?)",(Session.user_name,))
+            Session.Destiny_DB.connection.commit()
+        
+        except Exception as e:
+            print( "<p>Error: %s</p>" % str(e) )
     Session.get_Player_Summary()
     Session.get_Char_Data()
     Session.get_historical_stats()

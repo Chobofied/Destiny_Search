@@ -2,4 +2,4 @@
 2)Clean up up and optomize Destiny_Test code to just get what we need.
 3) Bring the Google Cloud Code into this folder together too. Add some guidance of how to use it and update it
 4) Upload thsi to GitHub
-5) Get a nice list of items to be put into an SQL database that can be displayed on the website
+5) Get a nice list of items with the images to be put into an SQL database that can be displayed on the website

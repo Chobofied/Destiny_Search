@@ -194,6 +194,7 @@ def Main_Routine(api_key,access_token,user_name):
         #Session.user_name='jackdubs25#0362'
         Session.user_name = Session.user_name.replace('#', '%23')
 
+
         #Tries and inserts the username to the user table. skips if already exists
         try:
             Session.Destiny_DB.cursor.execute("INSERT INTO users (username) VALUES (?)",(Session.user_name,))

@@ -216,7 +216,8 @@ def Main_Routine(api_key,access_token,user_name):
     Session.Destiny_DB.cursor.execute(Sel.select_users_KDR)
     result_STRING = Session.Destiny_DB.cursor.fetchall()
 
-    Session.Destiny_DB.cursor.execute(Sel.select_users_weapons)
+    #Session.Destiny_DB.cursor.execute(Sel.select_users_weapons,(str(Session.user_name),))
+    Session.Destiny_DB.cursor.execute(Sel.select_users_weapons,(str(Session.user_id),))
     result_STRING = Session.Destiny_DB.cursor.fetchall()
     
     x=4
@@ -225,8 +226,8 @@ def Main_Routine(api_key,access_token,user_name):
 if __name__ == '__main__':
 
     #Only Requiered if access token is not given
-    #user_name='Chobofied#0631'
-    user_name='jackdubs25#0362'
+    user_name='Chobofied#0631'
+    #user_name='jackdubs25#0362'
 
     api_key='afb7b0fcc0604ab49612af8de1b758f2'
     access_token=None

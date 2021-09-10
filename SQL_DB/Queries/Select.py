@@ -16,5 +16,5 @@ SELECT
 FROM weapons
 INNER JOIN users 
 ON weapons.user_id = users.id
-WHERE users.id=2
+WHERE users.id=(?)
 """

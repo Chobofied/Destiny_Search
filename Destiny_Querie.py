@@ -218,9 +218,9 @@ def Main_Routine(api_key,access_token,user_name):
 
     #Session.Destiny_DB.cursor.execute(Sel.select_users_weapons,(str(Session.user_name),))
     Session.Destiny_DB.cursor.execute(Sel.select_users_weapons,(str(Session.user_id),))
-    result_STRING = Session.Destiny_DB.cursor.fetchall()
+    Player_Inventory = Session.Destiny_DB.cursor.fetchall()
     
-    x=4
+    return Player_Inventory
 
 
 if __name__ == '__main__':
